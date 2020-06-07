@@ -1,6 +1,7 @@
 import torch
 import torch.utils.data
 from torch import nn
+import numpy as np
 
 
 class Flatten(nn.Module):
@@ -25,6 +26,7 @@ class ConvVAE(nn.Module):
         self.device = device
         self.z_dim = 20
         self.img_channels = img_channels
+        self.model = args.model
         img_size = 28
         filters_m = 32
 
@@ -88,9 +90,23 @@ class ConvVAE(nn.Module):
     def sample(self, n):
         sample = torch.randn(n, self.z_dim).to(self.device)
         return self.decode(sample)
+
+    def reconstruction_loss(self, x_hat, x):
+        """ Computes the likelihood of the data given the latent variable,
+        in this case using a Gaussian distribution with mean predicted by the neural network and variance = 1 """
+        
+        log_sigma = torch.zeros([], device=x_hat.device)
+        rec = gaussian_nll(x_hat, log_sigma, x).sum()
     
+        return rec
+
     def loss_function(self, recon_x, x, mu, logvar):
-        rec = torch.nn.MSELoss()(recon_x, x)
+        # Important: both reconstruction and KL divergence loss have to be summed over all element!
+        # Here we also sum the over batch and divide by the number of elements in the data later
+        if self.model == 'mse_vae':
+            rec = torch.nn.MSELoss()(recon_x, x)
+        else:
+            rec = self.reconstruction_loss(recon_x, x)
         
         # see Appendix B from VAE paper:
         # Kingma and Welling. Auto-Encoding Variational Bayes. ICLR, 2014
@@ -99,3 +115,8 @@ class ConvVAE(nn.Module):
         kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
         
         return rec, kl
+
+
+def gaussian_nll(mu, log_sigma, x):
+    return 0.5 * torch.pow((x - mu) / log_sigma.exp(), 2) + log_sigma + 0.5 * np.log(2 * np.pi)
+
