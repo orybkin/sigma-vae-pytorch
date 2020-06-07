@@ -46,6 +46,9 @@ class ConvVAE(nn.Module):
         self.fc2 = nn.Linear(self.z_dim, h_dim)
         self.decoder = self.get_decoder(filters_m, self.img_channels)
         
+        ## Sigma VAE
+        self.log_sigma = torch.nn.Parameter(torch.full((1,), 0)[0], requires_grad=args.model == 'sigma_vae')
+        
     @staticmethod
     def get_encoder(img_channels, filters_m):
         return nn.Sequential(
@@ -95,7 +98,13 @@ class ConvVAE(nn.Module):
         """ Computes the likelihood of the data given the latent variable,
         in this case using a Gaussian distribution with mean predicted by the neural network and variance = 1 """
         
-        log_sigma = torch.zeros([], device=x_hat.device)
+        if self.model == 'gaussian_vae':
+            # Naive gaussian VAE uses a constant variance
+            log_sigma = torch.zeros([], device=x_hat.device)
+        else:
+            # Sigma VAE learns the variance of the decoder as another parameter
+            log_sigma = self.log_sigma
+            
         rec = gaussian_nll(x_hat, log_sigma, x).sum()
     
         return rec

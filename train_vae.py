@@ -26,7 +26,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--model', type=str, default='mse', metavar='N',
-                    help='which model to use: mse_vae or gaussian_vae')
+                    help='which model to use: mse_vae,  gaussian_vae, or sigma_vae')
 parser.add_argument('--log_dir', type=str, default='test', metavar='N', required=True)
 args = parser.parse_args()
 
@@ -82,6 +82,7 @@ def train(epoch):
     summary_writer.add_scalar('train/elbo', train_loss, epoch)
     summary_writer.add_scalar('train/rec', rec.item() / len(data), epoch)
     summary_writer.add_scalar('train/kld', kl.item() / len(data), epoch)
+    summary_writer.add_scalar('train/log_sigma', model.log_sigma / len(data), epoch)
 
 
 def test(epoch):
