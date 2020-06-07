@@ -2,6 +2,14 @@ import torch
 import torch.utils.data
 from torch import nn
 import numpy as np
+import torch.nn.functional as F
+
+
+def softclip(tensor, min):
+    """ Clips the tensor values at the minimum value min in a softway. Taken from Handful of Trials """
+    result_tensor = min + F.softplus(tensor - min)
+
+    return result_tensor
 
 
 class Flatten(nn.Module):
@@ -104,7 +112,11 @@ class ConvVAE(nn.Module):
         else:
             # Sigma VAE learns the variance of the decoder as another parameter
             log_sigma = self.log_sigma
-            
+
+        # Learning the variance can become unstable in some cases. Softly limiting log_sigma to a minimum of -6
+        # ensures stable training.
+        log_sigma = softclip(log_sigma, -6)
+        
         rec = gaussian_nll(x_hat, log_sigma, x).sum()
     
         return rec
