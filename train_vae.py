@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import argparse
 import os
 
@@ -26,7 +24,7 @@ parser.add_argument('--no-cuda', action='store_true', default=False,
 parser.add_argument('--log-interval', type=int, default=10, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--model', type=str, default='mse', metavar='N',
-                    help='which model to use: mse_vae,  gaussian_vae, or sigma_vae')
+                    help='which model to use: mse_vae,  gaussian_vae, or sigma_vae or optimal_sigma_vae')
 parser.add_argument('--log_dir', type=str, default='test', metavar='N', required=True)
 args = parser.parse_args()
 
@@ -74,7 +72,7 @@ def train(epoch):
                 100. * batch_idx / len(train_loader),
                 rec.item() / len(data),
                 kl.item() / len(data),
-                0))
+                model.log_sigma))
             
     train_loss /=  len(train_loader.dataset)
     print('====> Epoch: {} Average loss: {:.4f}'.format(
@@ -82,7 +80,7 @@ def train(epoch):
     summary_writer.add_scalar('train/elbo', train_loss, epoch)
     summary_writer.add_scalar('train/rec', rec.item() / len(data), epoch)
     summary_writer.add_scalar('train/kld', kl.item() / len(data), epoch)
-    summary_writer.add_scalar('train/log_sigma', model.log_sigma / len(data), epoch)
+    summary_writer.add_scalar('train/log_sigma', model.log_sigma, epoch)
 
 
 def test(epoch):

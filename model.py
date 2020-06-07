@@ -54,8 +54,10 @@ class ConvVAE(nn.Module):
         self.fc2 = nn.Linear(self.z_dim, h_dim)
         self.decoder = self.get_decoder(filters_m, self.img_channels)
         
-        ## Sigma VAE
-        self.log_sigma = torch.nn.Parameter(torch.full((1,), 0)[0], requires_grad=args.model == 'sigma_vae')
+        self.log_sigma = 0
+        if self.model == 'sigma_vae':
+            ## Sigma VAE
+            self.log_sigma = torch.nn.Parameter(torch.full((1,), 0)[0], requires_grad=args.model == 'sigma_vae')
         
     @staticmethod
     def get_encoder(img_channels, filters_m):
@@ -109,9 +111,14 @@ class ConvVAE(nn.Module):
         if self.model == 'gaussian_vae':
             # Naive gaussian VAE uses a constant variance
             log_sigma = torch.zeros([], device=x_hat.device)
-        else:
+        elif self.model == 'sigma_vae':
             # Sigma VAE learns the variance of the decoder as another parameter
             log_sigma = self.log_sigma
+        elif self.model == 'optimal_sigma_vae':
+            log_sigma = ((x - x_hat) ** 2).mean([0,1,2,3], keepdim=True).sqrt().log()
+            self.log_sigma = log_sigma.item()
+        else:
+            raise NotImplementedError
 
         # Learning the variance can become unstable in some cases. Softly limiting log_sigma to a minimum of -6
         # ensures stable training.
