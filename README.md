@@ -9,6 +9,13 @@ This implementation is based on the VAE from PyTorch [examples](https://github.c
 achieves good results without tuning the heuristic weight beta since the decoder variance balances the objective. 
 It is also very easy to implement, check out individual commits to see the few lines of code you need to add this to your VAE.!
 
+## Installation
+```
+git clone https://github.com/orybkin/sigma-vae-pytorch.git
+cd sigma-vae-pytorch/
+pip3 install torch numpy argparse tqdm torchvision scipy tensorboard
+```
+
 ## How to run it 
 
 This repo implements several VAE versions.

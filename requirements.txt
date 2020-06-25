@@ -1,0 +1,7 @@
+torch
+numpy
+argparse
+tqdm
+torchvision
+tensorboard
+scipy
