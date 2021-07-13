@@ -1,7 +1,7 @@
-torch
+torch=1.4.0
 numpy
 argparse
 tqdm
-torchvision
+torchvision=0.5.0
 tensorboard
 scipy
