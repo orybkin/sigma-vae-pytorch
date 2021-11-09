@@ -57,7 +57,7 @@ class ConvVAE(nn.Module):
         self.log_sigma = 0
         if self.model == 'sigma_vae':
             ## Sigma VAE
-            self.log_sigma = torch.nn.Parameter(torch.full((1,), 0)[0], requires_grad=args.model == 'sigma_vae')
+            self.log_sigma = torch.nn.Parameter(torch.full((1,), 0).float()[0], requires_grad=args.model == 'sigma_vae')
         
     @staticmethod
     def get_encoder(img_channels, filters_m):
