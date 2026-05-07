@@ -132,7 +132,7 @@ class ConvVAE(nn.Module):
         # Important: both reconstruction and KL divergence loss have to be summed over all element!
         # Here we also sum the over batch and divide by the number of elements in the data later
         if self.model == 'mse_vae':
-            rec = torch.nn.MSELoss()(recon_x, x)
+            rec = torch.nn.MSELoss(size_average=False)(recon_x, x)
         else:
             rec = self.reconstruction_loss(recon_x, x)
         
