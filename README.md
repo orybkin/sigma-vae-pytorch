@@ -21,7 +21,7 @@ pip3 install torch numpy argparse tqdm torchvision scipy tensorboard
 This repo implements several VAE versions.
 
 First, a VAE from the original PyTorch example repo that uses MSE loss. This implementation works very poorly because
-the MSE loss averages the pixels instead of summing them. Don't do this! You have to sum the loss across pixels and
+the MSE loss averages the pixels instead of summing them (as is common in many implementations). Don't do this! You have to sum the loss across pixels and
 latent dimensions according to the definition of multivariate Gaussian (and other) distributions.
 ```
 python train_vae.py --log_dir mse_vae --model mse_vae
